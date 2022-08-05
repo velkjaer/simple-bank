@@ -1,0 +1,70 @@
+@baseUrl = http://localhost:8080
+
+### Create User
+POST {{baseUrl}}/users HTTP/1.1
+content-type: application/json
+
+{
+    "username": "victor123",
+    "full_name": "Victor Elkjær",
+    "email": "victor.elkjaer123@gmail.com",
+    "password": "secret"
+}
+
+
+### Create Account
+POST {{baseUrl}}/accounts HTTP/1.1
+content-type: application/json
+
+{
+    "owner": "aremkf",
+    "currency": "USD"
+}
+
+### Should fail as a bad request (400)
+POST {{baseUrl}}/accounts HTTP/1.1
+content-type: application/json
+
+{
+    "owner": "",
+    "currency": ""
+}
+
+### Get account with ID 1
+GET {{baseUrl}}/accounts/100 HTTP/1.1
+
+{
+
+}
+
+
+### Get accounts via query parameters (expects: [])
+GET {{baseUrl}}/accounts?page_id=100&page_size=5 HTTP/1.1
+
+{
+
+}
+
+### Get accounts via query parameters (expects validation error)
+GET {{baseUrl}}/accounts?page_id=1&page_size=20 HTTP/1.1
+
+{
+
+}
+
+### Get accounts via query parameters (expects validation error)
+GET {{baseUrl}}/accounts?page_id=0&page_size=10 HTTP/1.1
+
+{
+
+}
+
+### Create transfer between account1 and account2.
+POST {{baseUrl}}/transfers HTTP/1.1
+
+{
+    "from_account_id": 1,
+    "to_account_id": 2,
+    "amount": 10,
+    "currency": "USD"
+}
