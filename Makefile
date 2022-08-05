@@ -1,11 +1,38 @@
+docker/build:
+	docker build -t local/simplebank:latest .
+
+docker/rm:
+	docker stop simplebank
+	docker rm simplebank
+
+docker/run:
+	docker run -d --name simplebank \
+	 --network bank-network \
+	 -p 8080:8080 \
+	 -e GIN_MODE=release \
+	 -e DB_SOURCE="postgresql://root:secret@postgres12:5432/simple_bank?sslmode=disable" \
+	 local/simplebank:latest
+
+docker/network/create:
+	docker network create bank-network
+
+docker/all: docker/build docker/run
+
 postgres:
-	docker run --name postgres12 -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:12-alpine
+	docker run --name postgres12 -d \
+						 -p 5432:5432 \
+						 -e POSTGRES_USER=root \
+						 -e POSTGRES_PASSWORD=secret \
+						 --network bank-network
+						 postgres:12-alpine
 
 createdb:
-	docker exec -it postgres12 createdb --username=root --owner=root simple_bank
+	docker exec -it postgres12 \
+							createdb --username=root --owner=root simple_bank
 
 dropdb:
-	docker exec -it postgres12 dropdb simple_bank
+	docker exec -it postgres12 \
+							dropdb simple_bank
 
 migrateup:
 	migrate -path db/migration \
@@ -42,4 +69,4 @@ mock:
 			-destination db/mock/store.go \
 			github.com/velkjaer/simplebank/db/sqlc Store
 
-.PHONY: postgres createdb dropdb migrateup migratedown server mock migrateup1 migratedown1
+.PHONY: postgres createdb dropdb migrateup migratedown server mock migrateup1 migratedown1 docker/build docker/run docker/rm docker/all
